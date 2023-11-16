@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, Path, File, UploadFile, Form
 from fastapi.responses import FileResponse,  HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from database import engineconn
 from models import User, Item
@@ -18,12 +19,24 @@ import matplotlib.image as mpimg
 import os
 import uuid
 import shutil
+from fastapi.middleware.cors import CORSMiddleware
+
+
+
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 engine = engineconn()
 session = engine.sessionmaker()
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+app.mount("/static", StaticFiles(directory="/Users/ji-hokim/Downloads"), name="static")
 
 mtcnn = MTCNN(
     image_size = 474,
@@ -41,9 +54,6 @@ class ImageData(BaseModel):
     images: List[str]  # 이미지 데이터를 base64로 인코딩한 문자열 리스트
     person_count: int
 
-class ImageClusteringRequest(BaseModel):
-    person_count: int
-    images: List[str]  # 이미지 데이터를 base64로 인코딩한 문자열 리스트
 
 
 def create_directory(directory_path):
@@ -78,10 +88,20 @@ async def first_get():
                 """
     return HTMLResponse(content=content)
 
+class ImageClusteringRequest(BaseModel):
+    person_count: int
+    # files: List[str]  # 이미지 데이터를 base64로 인코딩한 문자열 리스트
 
-@app.post("/postingImages/")
+
+@app.post("/postingImages")
 async def posting_images(person_count: int = Form(...), files: List[UploadFile] = File(...)):
+    # print(person_count)
+    # print(files)
+    # return  [["다운로드 (2).jpeg"],["다운로드 (1).jpeg","다운로드 (3).jpeg"],["다운로드 (4).jpeg"]]
     embeddings = []
+
+    # person_count = request.person_count
+    # files = files
 
     folder = str(uuid.uuid1())
     UPLOAD_PATH = f"./photo/{folder}/"
