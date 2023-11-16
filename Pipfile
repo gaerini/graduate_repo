@@ -1,0 +1,31 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+uvicorn = "*"
+fastapi = "*"
+pydantic = "*"
+sqlalchemy = "*"
+mysql = "*"
+pyairtable = "*"
+boto3 = "*"
+python-multipart = "*"
+torch = "*"
+image = "*"
+pillow = "*"
+facenet-pytorch = "*"
+kmeans-pytorch = "*"
+torchvision = "*"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+sqlalchemy-imageattach = "*"
+pymysql = "*"
+tqdm = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
