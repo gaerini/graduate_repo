@@ -40,15 +40,14 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 app.mount("/static", StaticFiles(directory="/Users/ji-hokim/Documents/graduateProject/BE/sql_app/photo_stored/"), name="static")
 
 mtcnn = MTCNN(
-    image_size = 474,
-    margin=0,
-    min_face_size=20,
-    thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True,
-    device=device,
-    keep_all = True
+    image_size = 160,
+    margin=40,
+    keep_all=True,
+    post_process=True,
+    device=device
 )
 
-resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
+resnet = InceptionResnetV1(pretrained='casia-webface').eval().to(device)
 
 
 class ImageData(BaseModel):

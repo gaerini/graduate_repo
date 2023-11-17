@@ -39,7 +39,7 @@ files = os.listdir(target_folder_dir)
 embeddings = []
 
 for file in files:
-  image = Image.open(os.path.join(target_folder_dir, file)).convert('RGB')
+  image = Image.open(os.path.join(target_folder_dir, file))
   result = mtcnn(image)
   if result is not None:
     result = result.to(device)
