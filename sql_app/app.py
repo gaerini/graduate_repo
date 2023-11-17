@@ -20,8 +20,9 @@ import os
 import uuid
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
-
-
+import email_send
+from email_send import sending_email
+from urllib.parse import unquote
 
 
 app = FastAPI()
@@ -36,7 +37,7 @@ engine = engineconn()
 session = engine.sessionmaker()
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-app.mount("/static", StaticFiles(directory="/Users/ji-hokim/Downloads"), name="static")
+app.mount("/static", StaticFiles(directory="/Users/ji-hokim/Documents/graduateProject/BE/sql_app/photo_stored/"), name="static")
 
 mtcnn = MTCNN(
     image_size = 474,
@@ -93,6 +94,12 @@ class ImageClusteringRequest(BaseModel):
     # files: List[str]  # 이미지 데이터를 base64로 인코딩한 문자열 리스트
 
 
+@app.post("/sendingMail")
+async def sendMail(imageArray:  List[str] = Form(...), email: str = Form(...)):
+    sending_email(email, imageArray)
+    print(imageArray)
+
+
 @app.post("/postingImages")
 async def posting_images(person_count: int = Form(...), files: List[UploadFile] = File(...)):
     # print(person_count)
@@ -104,13 +111,17 @@ async def posting_images(person_count: int = Form(...), files: List[UploadFile] 
     # files = files
 
     folder = str(uuid.uuid1())
-    UPLOAD_PATH = f"./photo/{folder}/"
+    UPLOAD_PATH = f"/Users/ji-hokim/Documents/graduateProject/BE/sql_app/photo/{folder}/"
+    STORE_PATH = f"/Users/ji-hokim/Documents/graduateProject/BE/sql_app/photo_stored/{folder}/"
     create_directory(UPLOAD_PATH)
+    create_directory(STORE_PATH)
 
     for file in files:
         contents = await file.read()
         filename = file.filename
         with open(os.path.join(UPLOAD_PATH, filename), 'wb') as fp:
+            fp.write(contents)
+        with open(os.path.join(STORE_PATH, filename), 'wb') as fp:
             fp.write(contents)
     
     ex_files = os.listdir(UPLOAD_PATH)
@@ -144,8 +155,8 @@ async def posting_images(person_count: int = Form(...), files: List[UploadFile] 
         cluster_res.append([])
     
     for i in range(len(cluster_list)):
-        cluster_res[cluster_list[i]].append(ex_files[i])
-    print(ex_combined_tensor)
-    delete_directory(UPLOAD_PATH)
+        cluster_res[cluster_list[i]].append(os.path.join(folder, ex_files[i]))
+    print(cluster_res)
+    # delete_directory(UPLOAD_PATH)
     return cluster_res
     
