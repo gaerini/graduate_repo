@@ -3,7 +3,6 @@ from fastapi.responses import FileResponse,  HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from database import engineconn
-from models import User, Item
 from typing import List
 from facenet_pytorch import MTCNN, InceptionResnetV1
 import torch
